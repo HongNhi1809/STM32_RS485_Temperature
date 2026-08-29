@@ -22,7 +22,7 @@
 #define MAX31865_RNOMINAL   100.0f   
 #define MAX31865_WIRES_3    1        
 
-/* ---- Bitmask lỗi trả về (map thẳng sang statusBits TAG 0x05 trong spec TLV) ---- */
+/* ---- Bitmask lỗi trả về  ---- */
 #define MAX31865_FAULT_PROBE_OPEN   (1 << 0)  /* RTD hở mạch (bit D2 fault reg) */
 #define MAX31865_FAULT_PROBE_SHORT  (1 << 1)  /* RTD chập / low threshold */
 #define MAX31865_FAULT_OUT_RANGE    (1 << 2)  /* ngoài -55..+125 sau khi tính */

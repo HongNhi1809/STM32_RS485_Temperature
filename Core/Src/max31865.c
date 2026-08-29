@@ -7,7 +7,7 @@
 #define REG_RTD_MSB       0x01
 #define REG_RTD_LSB       0x02
 #define REG_FAULT_STATUS  0x07
-#define REG_WRITE_BIT     0x80  /* OR vào địa chỉ khi ghi */
+#define REG_WRITE_BIT     0x80 
 
 /* ---- Bit cấu hình thanh ghi 0x00 ---- */
 #define CFG_VBIAS         (1 << 7)
@@ -15,7 +15,7 @@
 #define CFG_1SHOT         (1 << 5)
 #define CFG_3WIRE         (1 << 4)
 #define CFG_FAULT_CLEAR   (1 << 1)
-#define CFG_FILTER_50HZ   (1 << 0)  /* 0 = lọc 60Hz, dùng cho VN nếu lưới nhiễu 50Hz thì bật */
+#define CFG_FILTER_50HZ   (1 << 0)  
 
 /* ---------- Bit-bang GPIO helpers ---------- */
 static inline void cs_low(void)   { HAL_GPIO_WritePin(MAX31865_CS_PORT,  MAX31865_CS_PIN,  GPIO_PIN_RESET); }
@@ -93,7 +93,7 @@ void Max31865_Init(void) {
     cfg |= CFG_3WIRE;
 #endif
     reg_write(REG_CONFIG, cfg);
-    HAL_Delay(10); /* datasheet: chờ ổn định bias trước khi đo lần đầu */
+    HAL_Delay(10); 
 }
 
 Max31865_Result Max31865_ReadOnce(uint32_t timeoutMs) {

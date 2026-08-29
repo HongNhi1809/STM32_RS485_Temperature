@@ -24,7 +24,6 @@
 #include "max31865.h"
 #include <stdio.h>
 #include <string.h>
-#include "max31865.h"
 #include "uart_bus.h"
 #include "protocol.h"
 #include "commands.h"
@@ -37,7 +36,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define DEBUG_UART2 0 
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -157,6 +156,7 @@ int main(void)
                   g_state.lastFault = g_state.statusBits;
               }
           }
+          #if DEBUG_UART2
           char dbg[80];
           int tWhole = (int)g_state.tempC;
           int tDeci = (int)((g_state.tempC - tWhole) * 10);
@@ -164,6 +164,7 @@ int main(void)
           snprintf(dbg, sizeof(dbg), "tempC=%d.%d tempRaw=%d status=0x%02X warn=%d cfgState=%d\r\n",
                   tWhole, tDeci, g_state.tempRawDeci, g_state.statusBits, g_state.warnState, g_state.cfgState);
           HAL_UART_Transmit(&huart2, (uint8_t*)dbg, strlen(dbg), 100);
+          #endif
       }
 
       uint8_t rawBuf[UART_BUS_MAX_FRAME];
@@ -174,8 +175,7 @@ int main(void)
 
           if (pr == FRAME_OK) {
               if (req.addr == 0x00) {
-                  /* Broadcast: xử lý nếu cần rồi im lặng tuyệt đối — hiện chưa có lệnh nào
-                  * cần phản ứng với broadcast nên bỏ qua hoàn toàn. */
+                  /* Broadcast: xử lý nếu cần rồi im lặng tuyệt đối */
               } else if (req.addr == MY_ADDR) {
                   Frame resp;
                   handle_frame(&req, &resp, &g_state);

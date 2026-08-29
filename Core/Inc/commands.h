@@ -35,8 +35,6 @@
 #define STATUS_OUT_RANGE    (1 << 2)
 #define STATUS_CONV_TMO     (1 << 3)
 
-/* Toàn bộ "bộ nhớ sống" của board — sau này vòng đo (MAX31865) sẽ ghi vào đây,
- * còn vòng bus (command handler) chỉ đọc/ghi theo đúng lệnh nhận được. */
 typedef struct {
     /* Data */
     float    tempC;

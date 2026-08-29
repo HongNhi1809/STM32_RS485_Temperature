@@ -43,7 +43,7 @@ static int get_data_tag(const SensorState *s, uint8_t tag, uint8_t *buf, uint8_t
             buf[0] = s->cfgState;
             *outLen = 1;
             return 1;
-        case TAG_STATUS_DETAIL: /* 0x06 — chỉ lấy được qua READ, không có trong READ_ALL */
+        case TAG_STATUS_DETAIL: 
             buf[0] = s->faultCnt;
             buf[1] = s->lastFault;
             buf[2] = (uint8_t)(s->minSeen & 0xFF);
@@ -52,7 +52,7 @@ static int get_data_tag(const SensorState *s, uint8_t tag, uint8_t *buf, uint8_t
             buf[5] = (uint8_t)((s->maxSeen >> 8) & 0xFF);
             *outLen = 6;
             return 1;
-        case TAG_SAMPLE_INFO: /* 0x07 */
+        case TAG_SAMPLE_INFO: 
             buf[0] = (uint8_t)(s->sampleCount & 0xFF);
             buf[1] = (uint8_t)((s->sampleCount >> 8) & 0xFF);
             buf[2] = (uint8_t)((s->sampleCount >> 16) & 0xFF);
@@ -119,10 +119,10 @@ static void do_read(const Frame *req, Frame *resp, SensorState *s) {
     }
 
     set_ack_flags(resp, s);
-    if (unknown > 0) resp->flags |= FLAG_PAR; /* thiếu 1 vài TAG -> set PAR */
+    if (unknown > 0) resp->flags |= FLAG_PAR;
 }
 
-/* ---- CMD_RESET (0x03): xoá statusBits/faultCnt, giữ nguyên config (mục 10) ---- */
+/* ---- CMD_RESET (0x03) ---- */
 static void do_reset(const Frame *req, Frame *resp, SensorState *s) {
     s->statusBits = 0;
     s->faultCnt = 0;
@@ -130,13 +130,12 @@ static void do_reset(const Frame *req, Frame *resp, SensorState *s) {
     s->minSeen = s->tempRawDeci;
     s->maxSeen = s->tempRawDeci;
     s->sampleCount = 0;
-    /* KHÔNG đụng: config 0xD0-0xD5, cfgState, bộ lọc/giá trị nhiệt độ hiện tại */
 
     base_resp(resp, req, CMD_ACK);
-    set_ack_flags(resp, s); /* statusBits vừa về 0 nên sẽ không có FLAG_ERR */
+    set_ack_flags(resp, s); 
 }
 
-/* ---- CMD_CONFIG (0x04): áp dụng tất cả hoặc không gì cả (mục 8) ---- */
+/* ---- CMD_CONFIG (0x04) ---- */
 static void do_config(const Frame *req, Frame *resp, SensorState *s) {
     TlvEntry entries[8];
     int n = tlv_decode_all(req->payload, req->payloadLen, entries, 8);
@@ -179,12 +178,11 @@ static void do_config(const Frame *req, Frame *resp, SensorState *s) {
                 newProbeTypeCfg = e->value[0];
                 break;
             default:
-                allKnown = 0; /* TAG không hiểu -> cả khung bị từ chối */
+                allKnown = 0; 
                 break;
         }
     }
 
-    /* Kiểm tra giá trị hợp lệ (mục 8): maxTempDeci > minTempDeci, sampleMs trong [100,10000] */
     int valid = allKnown && (newMax > newMin) && (newSampleMs >= 100 && newSampleMs <= 10000);
 
     if (!valid) {
@@ -199,20 +197,20 @@ static void do_config(const Frame *req, Frame *resp, SensorState *s) {
     s->sampleMs = newSampleMs;
     s->offsetDeci = newOffset;
     s->probeTypeCfg = newProbeTypeCfg;
-    s->cfgState = 1; /* mục 8.1: áp dụng CONFIG thành công -> cfgState = 1 */
+    s->cfgState = 1; 
 
     base_resp(resp, req, CMD_ACK);
     resp->payloadLen = 0;
     set_ack_flags(resp, s);
 }
 
-/* ---- CMD_IDENTIFY (0x05): 4 TAG toàn cục, luôn đủ, thứ tự tăng dần (mục 4.1) ---- */
+/* ---- CMD_IDENTIFY (0x05) ---- */
 static void do_identify(const Frame *req, Frame *resp, SensorState *s) {
     base_resp(resp, req, CMD_ACK);
     size_t off = 0;
     uint8_t v1[1], v2[2], v4[4];
 
-    v1[0] = 0x01; /* deviceType cố định = TemperatureSensor */
+    v1[0] = 0x01; 
     tlv_encode(resp->payload, MAX_PAYLOAD, &off, TAG_DEVICE_TYPE, 1, v1);
 
     v2[0] = (uint8_t)(s->fwVersion & 0xFF);
@@ -229,7 +227,7 @@ static void do_identify(const Frame *req, Frame *resp, SensorState *s) {
     tlv_encode(resp->payload, MAX_PAYLOAD, &off, TAG_SERIAL, 4, v4);
 
     resp->payloadLen = (uint8_t)off;
-    set_ack_flags(resp, s); /* IDENTIFY vẫn tuân quy tắc chung set ERR nếu có lỗi cảm biến */
+    set_ack_flags(resp, s); 
 }
 
 int handle_frame(const Frame *req, Frame *resp, SensorState *state) {
